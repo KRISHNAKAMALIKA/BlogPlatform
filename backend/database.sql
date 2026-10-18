@@ -1,6 +1,6 @@
 
-CREATE DATABASE IF NOT EXISTS blogplatform;
-USE blogplatform;
+CREATE DATABASE IF NOT EXISTS blog_platform;
+USE blog_platform;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -23,16 +23,6 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE TABLE IF NOT EXISTS comments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,
-    user_id INT NOT NULL,
-    content VARCHAR(2000) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES posts(id)
-        ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-        ON DELETE CASCADE
-);CREATE TABLE IF NOT EXISTS comments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
     user_id INT NOT NULL,
