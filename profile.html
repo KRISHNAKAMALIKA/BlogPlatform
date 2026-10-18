@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | BlogPlatform</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .profile-layout {
+      max-width: 1100px;
+      margin: 35px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 35px;
+    }
+    .profile-card, .post-card {
+      padding: 20px;
+      border-radius: 12px;
+      background: var(--card-bg, #fff);
+      box-shadow: 0 2px 12px #0001;
+      margin-bottom: 18px;
+    }
+    .post-card h3 { margin-top: 0; }
+    .profile-card input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px;
+      margin: 12px 0;
+    }
+    .profile-card button, .write-link {
+      padding: 10px 15px;
+      margin-right: 7px;
+      cursor: pointer;
+    }
+    @media(max-width:700px) {
+      .profile-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html"><strong>BlogPlatform</strong></a>
+      <div>
+        <a href="index.html">Home</a>
+        <a class="write-link" href="index.html">Write</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="profile-layout">
+    <section>
+      <h2>Your posts</h2>
+      <div id="myPosts">
+        <p>Loading your posts...</p>
+      </div>
+    </section>
+
+    <aside class="profile-card">
+      <h2>Profile</h2>
+      <p id="profileMessage">Your account information</p>
+      <label for="profileName">Username</label>
+      <input id="profileName" type="text" placeholder="Username">
+      <label for="profileEmail">Email</label>
+      <input id="profileEmail" type="email" placeholder="Email">
+      <button type="button" id="updateProfile">Update</button>
+      <button type="button" id="deleteAccount">Delete</button>
+      <p><a href="login.html" id="logout">Log out</a></p>
+    </aside>
+  </main>
+
+  <script src="profile.js"></script>
+</body>
+</html>
