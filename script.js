@@ -1,126 +1,195 @@
 
+
 const API_URL = "http://localhost:3000/api";
 
-// Find the login and registration forms in your HTML
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
+const blogList = document.getElementById("blogList");
+const loadingMessage = document.getElementById("loadingMessage");
+const postForm = document.getElementById("postForm");
+const loginNotice = document.getElementById("loginNotice");
+const postMessage = document.getElementById("postMessage");
+const logoutBtn = document.getElementById("logoutBtn");
 
-// Display messages on the page
-function showMessage(message, isError = false) {
-    let messageBox = document.getElementById("messageBox");
-
-    if (!messageBox) {
-        messageBox = document.createElement("p");
-        messageBox.id = "messageBox";
-        messageBox.setAttribute("role", "status");
-
-        const form =
-            document.getElementById("loginForm") ||
-            document.getElementById("registerForm");
-
-        if (form) {
-            form.prepend(messageBox);
-        } else {
-            document.body.prepend(messageBox);
-        }
-    }
-
-    messageBox.textContent = message;
-    messageBox.style.color = isError ? "red" : "green";
+function getToken() {
+    return sessionStorage.getItem("blogToken");
 }
 
-// Send a request to the backend
-async function sendRequest(endpoint, data) {
+function showMessage(element, message, isError = false) {
+    if (!element) return;
+    element.textContent = message;
+    element.style.color = isError ? "red" : "green";
+}
+
+function updateLoginState() {
+    const loggedIn = Boolean(getToken());
+
+    if (postForm) postForm.classList.toggle("hidden", !loggedIn);
+    if (loginNotice) loginNotice.classList.toggle("hidden", loggedIn);
+    if (logoutBtn) logoutBtn.classList.toggle("hidden", !loggedIn);
+}
+
+async function apiRequest(endpoint, options = {}) {
+    const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+    };
+
+    if (getToken()) {
+        headers.Authorization = `Bearer ${getToken()}`;
+    }
+
     const response = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
+        ...options,
+        headers
     });
 
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+        sessionStorage.removeItem("blogToken");
+        updateLoginState();
+    }
 
     if (!response.ok) {
-        throw new Error(result.message || "Something went wrong.");
+        throw new Error(result.message || "Request failed.");
     }
 
     return result;
 }
 
-// USER REGISTRATION
-if (registerForm) {
-    registerForm.addEventListener("submit", async function (event) {
-        event.preventDefault();
+// Load and display blog posts
+async function loadBlogs() {
+    if (!blogList) return;
 
-        const name =
-            document.getElementById("registerName")?.value.trim();
+    if (loadingMessage) {
+        loadingMessage.textContent = "Loading blogs...";
+    }
 
-        const email =
-            document.getElementById("registerEmail")?.value.trim();
+    try {
+        const result = await apiRequest("/posts");
+        const posts = Array.isArray(result) ? result : result.posts;
 
-        const password =
-            document.getElementById("registerPassword")?.value;
+        blogList.replaceChildren();
 
-        if (!name || !email || !password) {
-            showMessage("Please fill in all fields.", true);
+        if (!posts || posts.length === 0) {
+            if (loadingMessage) {
+                loadingMessage.textContent = "No blogs yet. Be the first to publish!";
+            }
             return;
         }
 
-        try {
-            const result = await sendRequest("/auth/register", {
-                name,
-                email,
-                password
+        if (loadingMessage) loadingMessage.textContent = "";
+
+        posts.forEach((post) => {
+            const article = document.createElement("article");
+            article.className = "panel blog-card";
+
+            const title = document.createElement("h3");
+            title.textContent = post.title;
+
+            const author = document.createElement("p");
+            author.className = "blog-author";
+            author.textContent = `By ${post.author || post.name || "Unknown author"}`;
+
+            const content = document.createElement("p");
+            content.textContent = post.content;
+
+            article.append(title, author, content);
+
+            const commentsHeading = document.createElement("h4");
+            commentsHeading.textContent = "Comments";
+            article.appendChild(commentsHeading);
+
+            const comments = Array.isArray(post.comments) ? post.comments : [];
+
+            comments.forEach((comment) => {
+                const commentElement = document.createElement("p");
+                commentElement.textContent =
+                    `${comment.name || comment.author || "User"}: ${comment.content}`;
+                article.appendChild(commentElement);
             });
 
-            showMessage(
-                result.message || "Registration successful! Please log in."
-            );
+            if (getToken()) {
+                const commentForm = document.createElement("form");
+                const commentInput = document.createElement("input");
+                commentInput.type = "text";
+                commentInput.placeholder = "Write a comment...";
+                commentInput.maxLength = 2000;
+                commentInput.required = true;
 
-            registerForm.reset();
-        } catch (error) {
-            showMessage(error.message, true);
-        }
-    });
-}
+                const commentButton = document.createElement("button");
+                commentButton.type = "submit";
+                commentButton.textContent = "Add Comment";
 
-// USER LOGIN
-if (loginForm) {
-    loginForm.addEventListener("submit", async function (event) {
-        event.preventDefault();
+                commentForm.append(commentInput, commentButton);
 
-        const email =
-            document.getElementById("loginEmail")?.value.trim();
+                commentForm.addEventListener("submit", async (event) => {
+                    event.preventDefault();
 
-        const password =
-            document.getElementById("loginPassword")?.value;
+                    try {
+                        await apiRequest(`/posts/${post.id}/comments`, {
+                            method: "POST",
+                            body: JSON.stringify({
+                                content: commentInput.value.trim()
+                            })
+                        });
 
-        if (!email || !password) {
-            showMessage("Please enter your email and password.", true);
-            return;
-        }
+                        await loadBlogs();
+                    } catch (error) {
+                        alert(error.message);
+                    }
+                });
 
-        try {
-            const result = await sendRequest("/auth/login", {
-                email,
-                password
-            });
-
-            if (!result.token) {
-                showMessage("Login response did not include a token.", true);
-                return;
+                article.appendChild(commentForm);
             }
 
-            // Save the login token for subsequent API requests
-            sessionStorage.setItem("blogToken", result.token);
+            blogList.appendChild(article);
+        });
+    } catch (error) {
+        if (loadingMessage) {
+            loadingMessage.textContent =
+                "Could not load blogs. Check that your backend is running.";
+        }
+        console.error(error);
+    }
+}
 
-            showMessage("Login successful! Welcome to BlogPlatform.");
+// Publish a blog post
+if (postForm) {
+    postForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-            // Redirect only if your project has a posts page
-            // window.location.href = "posts.html";
+        const title = document.getElementById("postTitle").value.trim();
+        const content = document.getElementById("postContent").value.trim();
+
+        if (!title || !content) {
+            showMessage(postMessage, "Please enter a title and story.", true);
+            return;
+        }
+
+        try {
+            await apiRequest("/posts", {
+                method: "POST",
+                body: JSON.stringify({ title, content })
+            });
+
+            postForm.reset();
+            showMessage(postMessage, "Blog published successfully!");
+            await loadBlogs();
         } catch (error) {
-            showMessage(error.message, true);
+            showMessage(postMessage, error.message, true);
         }
     });
 }
+
+// Logout
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+        sessionStorage.removeItem("blogToken");
+        updateLoginState();
+        loadBlogs();
+        window.location.href = "index.html";
+    });
+}
+
+updateLoginState();
+loadBlogs();
