@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | BlogSpace</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a class="logo" href="index.html">BlogSpace</a>
+    <nav><a href="index.html">Home</a><a href="login.html">Login</a></nav>
+  </header>
+
+  <main class="panel auth-card">
+    <h1>Create your account</h1>
+    <p>Join BlogSpace and share your ideas.</p>
+    <form id="registerForm">
+      <input id="name" type="text" placeholder="Your name" maxlength="80" required>
+      <input id="email" type="email" placeholder="Email address" required>
+      <input id="password" type="password" placeholder="Password (minimum 8 characters)" minlength="8" required>
+      <button type="submit">Create Account</button>
+    </form>
+    <p id="authMessage" class="message" role="status"></p>
+    <p>Already registered? <a href="login.html">Login here</a></p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
