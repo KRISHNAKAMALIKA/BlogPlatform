@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlogSpace | Share Your Ideas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a class="logo" href="index.html">BlogSpace</a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+      <button id="logoutBtn" class="hidden">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">YOUR IDEAS MATTER</p>
+      <h1>Write. Share. Connect.</h1>
+      <p>Discover stories, share your knowledge, and join the conversation.</p>
+    </section>
+
+    <section class="panel" id="createSection">
+      <h2>Write a new blog</h2>
+      <p id="loginNotice">Log in to publish your own blog posts.</p>
+      <form id="postForm" class="hidden">
+        <input id="postTitle" type="text" placeholder="Blog title" maxlength="150" required>
+        <textarea id="postContent" placeholder="Write your story..." rows="5" required></textarea>
+        <button type="submit">Publish Blog</button>
+      </form>
+      <p id="postMessage" role="status"></p>
+    </section>
+
+    <section class="blogs">
+      <h2>Latest Stories</h2>
+      <p id="loadingMessage">Loading blogs...</p>
+      <div id="blogList"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 BlogSpace · Made for people who love to write.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
