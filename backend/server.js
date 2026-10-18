@@ -8,6 +8,11 @@ const jwt = require("jsonwebtoken");
 const mysql = require("mysql2/promise");
 
 const app = express();
+app.use(express.json());
+
+const profileRoutes = require("./profile");
+
+app.use("/api/profile", profileRoutes);
 const PORT = process.env.PORT || 3000;
 
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
