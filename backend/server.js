@@ -19,8 +19,14 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   throw new Error("Set JWT_SECRET to a random secret of at least 32 characters.");
 }
 
+const allowedOrigins = [
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+  "https://krishnakamalika.github.io"
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5500"
+  origin: allowedOrigins
 }));
 app.use(express.json({ limit: "20kb" }));
 
