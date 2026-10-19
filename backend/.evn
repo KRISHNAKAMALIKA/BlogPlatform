@@ -1,0 +1,9 @@
+
+PORT=3000
+FRONTEND_URL=http://localhost:5500
+JWT_SECRET=BlogPlatform_Local_Secret_2026_Secure_Key_89
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=blogplatform
